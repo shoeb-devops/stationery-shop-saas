@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}স্টক অ্যালার্ট - স্টেশনারি শপ{% endblock %}
+{% block header_title %}স্টক অ্যালার্ট{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title"><i class="fas fa-bell text-warning"></i> স্টক অ্যালার্ট</h2>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">সব অ্যালার্ট</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>তারিখ</th>
+                    <th>পণ্য</th>
+                    <th>বার্তা</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if alerts %}
+                {% for alert in alerts %}
+                <tr>
+                    <td>{{ alert.created_at|date:"d M Y, h:i A" }}</td>
+                    <td><strong>{{ alert.product.name }}</strong></td>
+                    <td>{{ alert.message }}</td>
+                    <td>
+                        {% if alert.is_read %}
+                        <span class="badge badge-success">পড়া হয়েছে</span>
+                        {% else %}
+                        <span class="badge badge-warning">নতুন</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'inventory:stock_adjust' alert.product.stock.pk %}"
+                            class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> স্টক যোগ
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle text-success empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো অ্যালার্ট নেই!</div>
+                            <p class="text-muted">সব পণ্যের স্টক ঠিক আছে</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edit_user %}ইউজার সম্পাদনা{% else %}নতুন ইউজার{% endif %} - স্টেশনারি শপ{% endblock %}
+{% block header_title %}{% if edit_user %}ইউজার সম্পাদনা{% else %}নতুন ইউজার{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-user-plus"></i>
+            {% if edit_user %}ইউজার সম্পাদনা{% else %}নতুন ইউজার যোগ করুন{% endif %}
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">ইউজারনেম *</label>
+                    <input type="text" name="username" class="form-control" value="{{ edit_user.username|default:'' }}"
+                        required placeholder="ইউজারনেম">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">রোল *</label>
+                    <select name="role" class="form-control" required>
+                        <option value="staff">স্টাফ</option>
+                        <option value="manager">ম্যানেজার</option>
+                        <option value="accountant">অ্যাকাউন্ট্যান্ট</option>
+                        <option value="admin">অ্যাডমিন</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">নাম</label>
+                    <input type="text" name="first_name" class="form-control"
+                        value="{{ edit_user.first_name|default:'' }}" placeholder="নাম">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">পদবী</label>
+                    <input type="text" name="last_name" class="form-control"
+                        value="{{ edit_user.last_name|default:'' }}" placeholder="পদবী">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ইমেইল</label>
+                <input type="email" name="email" class="form-control" value="{{ edit_user.email|default:'' }}"
+                    placeholder="email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ফোন</label>
+                <input type="tel" name="phone" class="form-control" value="{{ edit_user.phone|default:'' }}"
+                    placeholder="01XXXXXXXXX">
+            </div>
+
+            {% if not edit_user %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">পাসওয়ার্ড *</label>
+                    <input type="password" name="password" class="form-control" required placeholder="পাসওয়ার্ড">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">পাসওয়ার্ড নিশ্চিত *</label>
+                    <input type="password" name="password2" class="form-control" required
+                        placeholder="পুনরায় পাসওয়ার্ড">
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_active" checked>
+                    <span>অ্যাক্টিভ</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> {% if edit_user %}আপডেট{% else %}সংরক্ষণ{% endif %} করুন
+                </button>
+                <a href="{% url 'accounts:user_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

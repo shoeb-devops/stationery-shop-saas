@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if product %}পণ্য সম্পাদনা{% else %}নতুন পণ্য{% endif %} - স্টেশনারি শপ{% endblock %}
+{% block header_title %}{% if product %}পণ্য সম্পাদনা{% else %}নতুন পণ্য যোগ{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            {% if product %}
+            <i class="fas fa-edit"></i> {{ product.name }} সম্পাদনা
+            {% else %}
+            <i class="fas fa-plus"></i> নতুন পণ্য যোগ করুন
+            {% endif %}
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">পণ্যের নাম *</label>
+                    <input type="text" name="name" class="form-control" value="{{ product.name|default:'' }}" required
+                        placeholder="যেমন: A4 সাইজ কাগজ">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ক্যাটাগরি</label>
+                    <select name="category" class="form-control">
+                        <option value="">নির্বাচন করুন</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.pk }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">GSM টাইপ</label>
+                    <select name="gsm" class="form-control">
+                        <option value="">নির্বাচন করুন</option>
+                        {% for g in gsm_types %}
+                        <option value="{{ g.pk }}">{{ g.value }} GSM</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">সাইজ</label>
+                    <select name="size" class="form-control">
+                        <option value="">নির্বাচন করুন</option>
+                        {% for s in sizes %}
+                        <option value="{{ s.pk }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">একক</label>
+                    <select name="unit" class="form-control">
+                        {% for u in units %}
+                        <option value="{{ u.pk }}">{{ u.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">ক্রয় মূল্য (৳) *</label>
+                    <input type="number" name="buying_price" class="form-control"
+                        value="{{ product.buying_price|default:'0' }}" required step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">বিক্রয় মূল্য (৳) *</label>
+                    <input type="number" name="selling_price" class="form-control"
+                        value="{{ product.selling_price|default:'0' }}" required step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">বারকোড</label>
+                    <input type="text" name="barcode" class="form-control" value="{{ product.barcode|default:'' }}"
+                        placeholder="ঐচ্ছিক">
+                </div>
+            </div>
+
+            {% if not product %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">প্রারম্ভিক স্টক</label>
+                    <input type="number" name="initial_stock" class="form-control" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">রিঅর্ডার লেভেল</label>
+                    <input type="number" name="reorder_level" class="form-control" value="10" min="0">
+                </div>
+            </div>
+            {% else %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">রিঅর্ডার লেভেল</label>
+                    <input type="number" name="reorder_level" class="form-control"
+                        value="{{ product.stock.reorder_level|default:'10' }}" min="0">
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label">বিবরণ</label>
+                <textarea name="description" class="form-control" rows="3"
+                    placeholder="পণ্যের বিবরণ (ঐচ্ছিক)">{{ product.description|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ছবি</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+                {% if product.image %}
+                <small class="text-muted">বর্তমান: {{ product.image.name }}</small>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> {% if product %}আপডেট করুন{% else %}সংরক্ষণ করুন{% endif %}
+                </button>
+                <a href="{% url 'products:product_list' %}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> বাতিল
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

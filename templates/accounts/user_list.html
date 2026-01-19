@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}ইউজার তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}ইউজার তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title"><i class="fas fa-users-cog"></i> ইউজার ম্যানেজমেন্ট</h2>
+    <a href="{% url 'accounts:user_add' %}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> নতুন ইউজার
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ইউজারনেম</th>
+                    <th>নাম</th>
+                    <th>ইমেইল</th>
+                    <th>ফোন</th>
+                    <th>রোল</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.username }}</strong></td>
+                    <td>{{ u.get_full_name|default:"-" }}</td>
+                    <td>{{ u.email|default:"-" }}</td>
+                    <td>{{ u.phone|default:"-" }}</td>
+                    <td>
+                        <span
+                            class="badge badge-{% if u.role == 'admin' %}danger{% elif u.role == 'manager' %}warning{% else %}info{% endif %}">
+                            {{ u.get_role_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if u.is_active %}
+                        <span class="badge badge-success">সক্রিয়</span>
+                        {% else %}
+                        <span class="badge badge-danger">নিষ্ক্রিয়</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fas fa-users empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো ইউজার নেই</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}ক্রয় তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}ক্রয় তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">ক্রয় তালিকা</h2>
+    <a href="{% url 'purchases:purchase_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> নতুন ক্রয়
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ক্রয় নম্বর</th>
+                    <th>তারিখ</th>
+                    <th>সাপ্লায়ার</th>
+                    <th>মোট</th>
+                    <th>প্রদত্ত</th>
+                    <th>বাকি</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                    <td><a href="{% url 'purchases:purchase_detail' purchase.pk %}"><strong>{{ purchase.purchase_number
+                                }}</strong></a></td>
+                    <td>{{ purchase.purchase_date|date:"d M Y" }}</td>
+                    <td>{{ purchase.supplier.name|default:"-" }}</td>
+                    <td>৳{{ purchase.grand_total|floatformat:0 }}</td>
+                    <td>৳{{ purchase.paid_amount|floatformat:0 }}</td>
+                    <td>
+                        {% if purchase.due_amount > 0 %}
+                        <span class="text-danger">৳{{ purchase.due_amount|floatformat:0 }}</span>
+                        {% else %}৳0{% endif %}
+                    </td>
+                    <td>
+                        <span
+                            class="badge badge-{% if purchase.payment_status == 'paid' %}success{% elif purchase.payment_status == 'partial' %}warning{% else %}danger{% endif %}">
+                            {{ purchase.get_payment_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-sm btn-outline">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fas fa-truck empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো ক্রয় নেই</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

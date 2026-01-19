@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}নতুন ক্রয় - স্টেশনারি শপ{% endblock %}
+{% block header_title %}নতুন ক্রয়{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-truck"></i> নতুন ক্রয় যোগ করুন</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" id="purchaseForm">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">সাপ্লায়ার *</label>
+                    <select name="supplier" class="form-control" required>
+                        <option value="">নির্বাচন করুন</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.pk }}">{{ s.name }} - {{ s.company|default:"" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">তারিখ</label>
+                    <input type="date" name="purchase_date" class="form-control" value="{{ today }}">
+                </div>
+            </div>
+
+            <h4 class="mt-4 mb-3">পণ্য তালিকা</h4>
+
+            <div id="itemsContainer">
+                <div class="item-row"
+                    style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: var(--dark-200); border-radius: var(--radius);">
+                    <div>
+                        <label class="form-label">পণ্য *</label>
+                        <select name="product[]" class="form-control" required>
+                            <option value="">নির্বাচন করুন</option>
+                            {% for p in products %}
+                            <option value="{{ p.pk }}" data-price="{{ p.buying_price }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">পরিমাণ *</label>
+                        <input type="number" name="quantity[]" class="form-control" value="1" min="1" required
+                            onchange="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="form-label">একক মূল্য *</label>
+                        <input type="number" name="unit_price[]" class="form-control" value="0" min="0" step="0.01"
+                            required onchange="calculateTotal()">
+                    </div>
+                    <div>
+                        <label class="form-label">মোট</label>
+                        <input type="text" class="form-control item-total" readonly value="৳0">
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button type="button" class="btn btn-danger btn-icon" onclick="removeItem(this)"
+                            style="margin-bottom: 0;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-outline mb-4" onclick="addItem()">
+                <i class="fas fa-plus"></i> আরো পণ্য যোগ
+            </button>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">ডিসকাউন্ট</label>
+                    <input type="number" name="discount" id="discount" class="form-control" value="0" min="0"
+                        step="0.01" onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">শিপিং খরচ</label>
+                    <input type="number" name="shipping" id="shipping" class="form-control" value="0" min="0"
+                        step="0.01" onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">প্রদত্ত টাকা</label>
+                    <input type="number" name="paid_amount" class="form-control" value="0" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div
+                style="background: var(--dark-200); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 1.25rem;">
+                    <strong>সর্বমোট:</strong>
+                    <strong id="grandTotal">৳0</strong>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">নোট</label>
+                <textarea name="notes" class="form-control" rows="2" placeholder="অতিরিক্ত তথ্য (ঐচ্ছিক)"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> সংরক্ষণ করুন
+                </button>
+                <a href="{% url 'purchases:purchase_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addItem() {
+        const container = document.getElementById('itemsContainer');
+        const firstRow = container.querySelector('.item-row');
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.querySelectorAll('input').forEach(input => {
+            if (input.type === 'number') input.value = input.name === 'quantity[]' ? '1' : '0';
+            if (input.classList.contains('item-total')) input.value = '৳0';
+        });
+        newRow.querySelector('select').value = '';
+
+        container.appendChild(newRow);
+    }
+
+    function removeItem(btn) {
+        const container = document.getElementById('itemsContainer');
+        if (container.querySelectorAll('.item-row').length > 1) {
+            btn.closest('.item-row').remove();
+            calculateTotal();
+        }
+    }
+
+    function calculateTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.item-row').forEach(row => {
+            const qty = parseFloat(row.querySelector('[name="quantity[]"]').value) || 0;
+            const price = parseFloat(row.querySelector('[name="unit_price[]"]').value) || 0;
+            const total = qty * price;
+            row.querySelector('.item-total').value = '৳' + total.toFixed(0);
+            subtotal += total;
+        });
+
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+        const grandTotal = subtotal - discount + shipping;
+
+        document.getElementById('grandTotal').textContent = '৳' + grandTotal.toFixed(0);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}নতুন ক্যাটাগরি - স্টেশনারি শপ{% endblock %}
+{% block header_title %}নতুন ক্যাটাগরি{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px;">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-plus"></i> নতুন ক্যাটাগরি যোগ করুন
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">ক্যাটাগরির নাম *</label>
+                <input type="text" name="name" class="form-control" required placeholder="যেমন: A4 সাইজ কাগজ">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">বিবরণ</label>
+                <textarea name="description" class="form-control" rows="3"
+                    placeholder="ক্যাটাগরির বিবরণ (ঐচ্ছিক)"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_active" checked>
+                    <span>সক্রিয়</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> সংরক্ষণ করুন
+                </button>
+                <a href="{% url 'products:category_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}নতুন খরচ - স্টেশনারি শপ{% endblock %}
+{% block header_title %}নতুন খরচ{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px;">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-receipt"></i> নতুন খরচ যোগ</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">খরচের ধরণ *</label>
+                <select name="category" class="form-control" required>
+                    <option value="rent">দোকান ভাড়া</option>
+                    <option value="salary">বেতন</option>
+                    <option value="electricity">বিদ্যুৎ বিল</option>
+                    <option value="water">পানি বিল</option>
+                    <option value="internet">ইন্টারনেট বিল</option>
+                    <option value="transport">পরিবহন</option>
+                    <option value="packaging">প্যাকেজিং</option>
+                    <option value="maintenance">মেরামত</option>
+                    <option value="marketing">মার্কেটিং</option>
+                    <option value="other">অন্যান্য</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">টাকার পরিমাণ *</label>
+                <input type="number" name="amount" class="form-control" required min="0" step="0.01" placeholder="০.০০">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">তারিখ</label>
+                <input type="date" name="date" class="form-control" value="{{ today }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">বিবরণ</label>
+                <textarea name="description" class="form-control" rows="2" placeholder="খরচের বিবরণ..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">রিসিট (ঐচ্ছিক)</label>
+                <input type="file" name="receipt" class="form-control" accept="image/*">
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> সংরক্ষণ
+                </button>
+                <a href="{% url 'accounting:expense_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

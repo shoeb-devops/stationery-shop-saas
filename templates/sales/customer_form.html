@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}নতুন গ্রাহক - স্টেশনারি শপ{% endblock %}
+{% block header_title %}নতুন গ্রাহক{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-user-plus"></i> নতুন গ্রাহক যোগ করুন</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">গ্রাহকের নাম *</label>
+                <input type="text" name="name" class="form-control" required placeholder="গ্রাহকের নাম">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">ফোন নম্বর</label>
+                    <input type="tel" name="phone" class="form-control" placeholder="01XXXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ইমেইল</label>
+                    <input type="email" name="email" class="form-control" placeholder="email@example.com">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">প্রতিষ্ঠান</label>
+                <input type="text" name="company" class="form-control" placeholder="প্রতিষ্ঠানের নাম (ঐচ্ছিক)">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ঠিকানা</label>
+                <textarea name="address" class="form-control" rows="2" placeholder="সম্পূর্ণ ঠিকানা"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> সংরক্ষণ করুন
+                </button>
+                <a href="{% url 'sales:customer_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

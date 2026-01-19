@@ -1,0 +1,118 @@
+{% extends 'tenants/base_landing.html' %}
+
+{% block title %}রেজিস্ট্রেশন - স্টেশনারি শপ SaaS{% endblock %}
+
+{% block content %}
+<section style="padding: 3rem 2rem; max-width: 600px; margin: 0 auto;">
+    <div style="background: var(--dark-200); border-radius: 20px; padding: 2.5rem; border: 1px solid var(--dark-300);">
+        <h2 style="text-align: center; margin-bottom: 0.5rem;">আপনার দোকান তৈরি করুন</h2>
+        <p style="text-align: center; color: var(--dark-400); margin-bottom: 2rem;">ফ্রিতে শুরু করুন, পরে আপগ্রেড করুন
+        </p>
+
+        {% if messages %}
+        <div style="margin-bottom: 1.5rem;">
+            {% for message in messages %}
+            <div
+                style="background: {% if message.tags == 'error' %}rgba(239,68,68,0.2){% else %}rgba(16,185,129,0.2){% endif %}; padding: 1rem; border-radius: 8px; color: {% if message.tags == 'error' %}var(--danger){% else %}var(--success){% endif %};">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <h4 style="margin-bottom: 1rem; color: var(--primary);"><i class="fas fa-store"></i> দোকানের তথ্য</h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">দোকানের নাম *</label>
+                <input type="text" name="shop_name" required
+                    style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;"
+                    placeholder="যেমন: রহমান স্টেশনারি">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">মালিকের নাম *</label>
+                    <input type="text" name="owner_name" required
+                        style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">ফোন *</label>
+                    <input type="tel" name="phone" required
+                        style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;"
+                        placeholder="01XXXXXXXXX">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">ইমেইল *</label>
+                <input type="email" name="email" required
+                    style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;"
+                    placeholder="email@example.com">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">ঠিকানা</label>
+                <textarea name="address" rows="2"
+                    style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white; resize: none;"
+                    placeholder="দোকানের ঠিকানা"></textarea>
+            </div>
+
+            <h4 style="margin-bottom: 1rem; color: var(--primary);"><i class="fas fa-user"></i> লগইন তথ্য</h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">ইউজারনেম *</label>
+                <input type="text" name="username" required
+                    style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">পাসওয়ার্ড *</label>
+                    <input type="password" name="password" required
+                        style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">পাসওয়ার্ড নিশ্চিত *</label>
+                    <input type="password" name="password2" required
+                        style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--dark-300); background: var(--dark-100); color: white;">
+                </div>
+            </div>
+
+            <h4 style="margin-bottom: 1rem; color: var(--primary);"><i class="fas fa-crown"></i> প্ল্যান নির্বাচন</h4>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 2rem;">
+                {% for plan in plans %}
+                <label style="cursor: pointer;">
+                    <input type="radio" name="plan" value="{{ plan.pk }}" {% if forloop.first %}checked{% endif %}
+                        style="display: none;">
+                    <div class="plan-option"
+                        style="padding: 1rem; border-radius: 8px; border: 2px solid var(--dark-300); text-align: center; transition: all 0.3s;">
+                        <div style="font-weight: 600;">{{ plan.display_name }}</div>
+                        <div style="font-size: 0.85rem; color: var(--dark-400);">৳{{ plan.price_monthly|floatformat:0
+                            }}/মাস</div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+                <i class="fas fa-rocket"></i> দোকান তৈরি করুন
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--dark-400);">
+            ইতোমধ্যে অ্যাকাউন্ট আছে? <a href="{% url 'accounts:login' %}" style="color: var(--primary);">লগইন করুন</a>
+        </p>
+    </div>
+</section>
+
+<style>
+    input[type="radio"]:checked+.plan-option {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+    }
+</style>
+{% endblock %}

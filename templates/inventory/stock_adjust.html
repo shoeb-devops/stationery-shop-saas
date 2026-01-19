@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}স্টক সমন্বয় - স্টেশনারি শপ{% endblock %}
+{% block header_title %}স্টক সমন্বয়{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">{{ stock.product.name }}</h2>
+    <a href="{% url 'inventory:stock_list' %}" class="btn btn-outline">
+        <i class="fas fa-arrow-left"></i> ফিরে যান
+    </a>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-edit"></i> স্টক সমন্বয়</h3>
+    </div>
+    <div class="card-body">
+        <div
+            style="text-align: center; padding: 1.5rem; background: var(--dark-200); border-radius: var(--radius); margin-bottom: 1.5rem;">
+            <div style="font-size: 0.9rem; color: var(--dark-400);">বর্তমান স্টক</div>
+            <div style="font-size: 2.5rem; font-weight: 700;">{{ stock.quantity }}</div>
+            <div style="color: var(--dark-400);">{{ stock.product.unit.short_name|default:"পিস" }}</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">সমন্বয়ের ধরণ</label>
+                <select name="type" class="form-control" required>
+                    <option value="add">স্টক যোগ করুন (+)</option>
+                    <option value="remove">স্টক কমান (-)</option>
+                    <option value="set">নতুন পরিমাণ সেট করুন (=)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">পরিমাণ</label>
+                <input type="number" name="quantity" class="form-control" required min="0" step="0.01"
+                    placeholder="পরিমাণ লিখুন">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">নোট (ঐচ্ছিক)</label>
+                <textarea name="notes" class="form-control" rows="2" placeholder="সমন্বয়ের কারণ..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                <i class="fas fa-save"></i> সমন্বয় করুন
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}স্টক তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}স্টক তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">স্টক তালিকা</h2>
+        <p class="text-muted">মোট স্টক মূল্য (ক্রয়): ৳{{ total_value|floatformat:0 }} | বিক্রয় মূল্যে: ৳{{
+            total_selling_value|floatformat:0 }}</p>
+    </div>
+    <a href="{% url 'inventory:low_stock' %}" class="btn btn-warning">
+        <i class="fas fa-exclamation-triangle"></i> লো স্টক দেখুন
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>পণ্য</th>
+                        <th>ক্যাটাগরি</th>
+                        <th>বর্তমান স্টক</th>
+                        <th>রিঅর্ডার লেভেল</th>
+                        <th>স্টক মূল্য</th>
+                        <th>স্ট্যাটাস</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>
+                            <strong>{{ stock.product.name }}</strong>
+                            <br><small class="text-muted">{{ stock.product.sku }}</small>
+                        </td>
+                        <td>{{ stock.product.category.name|default:"-" }}</td>
+                        <td>
+                            <strong>{{ stock.quantity }}</strong>
+                            {{ stock.product.unit.short_name|default:"পিস" }}
+                        </td>
+                        <td>{{ stock.reorder_level }}</td>
+                        <td>৳{{ stock.stock_value|floatformat:0 }}</td>
+                        <td>
+                            {% if stock.is_low_stock %}
+                            <span class="badge badge-danger">লো স্টক</span>
+                            {% else %}
+                            <span class="badge badge-success">ঠিক আছে</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'inventory:stock_adjust' stock.pk %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> সমন্বয়
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-warehouse empty-state-icon"></i>
+                                <div class="empty-state-title">কোনো স্টক নেই</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if supplier %}সাপ্লায়ার সম্পাদনা{% else %}নতুন সাপ্লায়ার{% endif %} - স্টেশনারি শপ{% endblock %}
+{% block header_title %}{% if supplier %}সাপ্লায়ার সম্পাদনা{% else %}নতুন সাপ্লায়ার{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h3 class="card-title">
+            {% if supplier %}
+            <i class="fas fa-edit"></i> সাপ্লায়ার সম্পাদনা
+            {% else %}
+            <i class="fas fa-plus"></i> নতুন সাপ্লায়ার যোগ করুন
+            {% endif %}
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">সাপ্লায়ারের নাম *</label>
+                <input type="text" name="name" class="form-control" value="{{ supplier.name|default:'' }}" required
+                    placeholder="সাপ্লায়ারের নাম">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">কোম্পানি</label>
+                <input type="text" name="company" class="form-control" value="{{ supplier.company|default:'' }}"
+                    placeholder="কোম্পানির নাম (ঐচ্ছিক)">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">ফোন নম্বর</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ supplier.phone|default:'' }}"
+                        placeholder="01XXXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ইমেইল</label>
+                    <input type="email" name="email" class="form-control" value="{{ supplier.email|default:'' }}"
+                        placeholder="email@example.com">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ঠিকানা</label>
+                <textarea name="address" class="form-control" rows="2"
+                    placeholder="সম্পূর্ণ ঠিকানা">{{ supplier.address|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">নোট</label>
+                <textarea name="notes" class="form-control" rows="2"
+                    placeholder="অতিরিক্ত তথ্য">{{ supplier.notes|default:'' }}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> {% if supplier %}আপডেট করুন{% else %}সংরক্ষণ করুন{% endif %}
+                </button>
+                <a href="{% url 'purchases:supplier_list' %}" class="btn btn-outline">বাতিল</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}খরচ তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}খরচ তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">খরচ তালিকা</h2>
+        <p class="text-muted">মোট খরচ: ৳{{ total|floatformat:0 }}</p>
+    </div>
+    <a href="{% url 'accounting:expense_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> নতুন খরচ
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>তারিখ</th>
+                    <th>ক্যাটাগরি</th>
+                    <th>বিবরণ</th>
+                    <th>টাকা</th>
+                    <th>যোগ করেছেন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.expense_date|date:"d M Y" }}</td>
+                    <td><span class="badge badge-info">{{ expense.get_category_display }}</span></td>
+                    <td>{{ expense.description|truncatechars:50|default:"-" }}</td>
+                    <td><strong>৳{{ expense.amount|floatformat:0 }}</strong></td>
+                    <td>{{ expense.created_by.username|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-receipt empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো খরচ নেই</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'tenants/base_landing.html' %}
+
+{% block title %}প্রাইসিং - স্টেশনারি শপ SaaS{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding: 4rem 2rem;">
+    <h1>সহজ ও স্বচ্ছ <span>প্রাইসিং</span></h1>
+    <p>আপনার দোকানের প্রয়োজন অনুযায়ী প্ল্যান বেছে নিন</p>
+</section>
+
+<section style="padding: 0 2rem 4rem; max-width: 1200px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <!-- Free Plan -->
+        <div
+            style="background: var(--dark-200); border-radius: 20px; padding: 2rem; border: 1px solid var(--dark-300);">
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">ফ্রি</h3>
+            <p style="color: var(--dark-400); margin-bottom: 1.5rem;">ছোট দোকানের জন্য</p>
+            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 1.5rem;">
+                ৳০<span style="font-size: 1rem; color: var(--dark-400);">/মাস</span>
+            </div>
+            <ul style="list-style: none; margin-bottom: 2rem;">
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> ৫০টি পণ্য
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> ১ জন ইউজার
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> POS সিস্টেম
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> বেসিক রিপোর্ট
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; color: var(--dark-400);">
+                    <i class="fas fa-times"></i> বারকোড সাপোর্ট
+                </li>
+            </ul>
+            <a href="{% url 'tenants:register' %}?plan=free" class="btn btn-outline"
+                style="width: 100%; justify-content: center;">ফ্রি শুরু করুন</a>
+        </div>
+
+        <!-- Basic Plan -->
+        <div
+            style="background: var(--dark-200); border-radius: 20px; padding: 2rem; border: 2px solid var(--primary); position: relative; transform: scale(1.05);">
+            <div
+                style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gradient-primary); padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                জনপ্রিয়</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">বেসিক</h3>
+            <p style="color: var(--dark-400); margin-bottom: 1.5rem;">বাড়ন্ত ব্যবসার জন্য</p>
+            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 1.5rem;">
+                ৳৪৯৯<span style="font-size: 1rem; color: var(--dark-400);">/মাস</span>
+            </div>
+            <ul style="list-style: none; margin-bottom: 2rem;">
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> ৫০০টি পণ্য
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> ৫ জন ইউজার
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> POS সিস্টেম
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> সব রিপোর্ট
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> বারকোড সাপোর্ট
+                </li>
+            </ul>
+            <a href="{% url 'tenants:register' %}?plan=basic" class="btn btn-primary"
+                style="width: 100%; justify-content: center;">১৪ দিন ফ্রি ট্রায়াল</a>
+        </div>
+
+        <!-- Premium Plan -->
+        <div
+            style="background: var(--dark-200); border-radius: 20px; padding: 2rem; border: 1px solid var(--dark-300);">
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">প্রিমিয়াম</h3>
+            <p style="color: var(--dark-400); margin-bottom: 1.5rem;">বড় ব্যবসার জন্য</p>
+            <div style="font-size: 3rem; font-weight: 700; margin-bottom: 1.5rem;">
+                ৳৯৯৯<span style="font-size: 1rem; color: var(--dark-400);">/মাস</span>
+            </div>
+            <ul style="list-style: none; margin-bottom: 2rem;">
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> আনলিমিটেড পণ্য
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> ২০ জন ইউজার
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> সব ফিচার
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> API Access
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check" style="color: var(--success);"></i> Priority Support
+                </li>
+            </ul>
+            <a href="{% url 'tenants:register' %}?plan=premium" class="btn btn-outline"
+                style="width: 100%; justify-content: center;">১৪ দিন ফ্রি ট্রায়াল</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}বাকি হিসাব - স্টেশনারি শপ{% endblock %}
+{% block header_title %}বাকি হিসাব{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title"><i class="fas fa-hand-holding-usd"></i> বাকি হিসাব</h2>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card warning">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value">৳{{ total_due|floatformat:0 }}</div>
+        <div class="stat-label">মোট বাকি</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="stat-value">{{ due_customers_count }}</div>
+        <div class="stat-label">বাকি গ্রাহক সংখ্যা</div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-list"></i> বাকি গ্রাহক তালিকা</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>গ্রাহক</th>
+                    <th>ফোন</th>
+                    <th>মোট ক্রয়</th>
+                    <th>প্রদত্ত</th>
+                    <th>বাকি</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if due_sales %}
+                {% for sale in due_sales %}
+                <tr>
+                    <td><strong>{{ sale.customer.name|default:"ওয়াক-ইন" }}</strong></td>
+                    <td>{{ sale.customer.phone|default:"-" }}</td>
+                    <td>৳{{ sale.grand_total|floatformat:0 }}</td>
+                    <td>৳{{ sale.paid_amount|floatformat:0 }}</td>
+                    <td><span class="text-danger"><strong>৳{{ sale.due_amount|floatformat:0 }}</strong></span></td>
+                    <td>
+                        <a href="{% url 'sales:sale_detail' sale.pk %}" class="btn btn-sm btn-outline">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'sales:add_payment' sale.pk %}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> পেমেন্ট
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle text-success empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো বাকি নেই!</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

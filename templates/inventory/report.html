@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}ইনভেন্টরি রিপোর্ট - স্টেশনারি শপ{% endblock %}
+{% block header_title %}ইনভেন্টরি রিপোর্ট{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">ইনভেন্টরি রিপোর্ট</h2>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-label">মোট পণ্য</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-icon"><i class="fas fa-warehouse"></i></div>
+        <div class="stat-value">৳{{ total_stock_value|floatformat:0 }}</div>
+        <div class="stat-label">স্টক মূল্য (ক্রয়)</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-tag"></i></div>
+        <div class="stat-value">৳{{ total_selling_value|floatformat:0 }}</div>
+        <div class="stat-label">স্টক মূল্য (বিক্রয়)</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-value">{{ low_stock_count }}</div>
+        <div class="stat-label">লো স্টক পণ্য</div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-list"></i> ক্যাটাগরি অনুযায়ী স্টক</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ক্যাটাগরি</th>
+                    <th>পণ্য সংখ্যা</th>
+                    <th>মোট স্টক</th>
+                    <th>স্টক মূল্য</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if category_stats %}
+                {% for stat in category_stats %}
+                <tr>
+                    <td><strong>{{ stat.category }}</strong></td>
+                    <td>{{ stat.product_count }}</td>
+                    <td>{{ stat.total_quantity }}</td>
+                    <td>৳{{ stat.stock_value|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">কোনো ডাটা নেই</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-exclamation-triangle text-warning"></i> লো স্টক পণ্য</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>পণ্য</th>
+                    <th>বর্তমান স্টক</th>
+                    <th>রিঅর্ডার লেভেল</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if low_stock_items %}
+                {% for stock in low_stock_items %}
+                <tr>
+                    <td><strong>{{ stock.product.name }}</strong></td>
+                    <td><span class="badge badge-danger">{{ stock.quantity }}</span></td>
+                    <td>{{ stock.reorder_level }}</td>
+                    <td>
+                        <a href="{% url 'inventory:stock_adjust' stock.pk %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> স্টক যোগ
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle text-success empty-state-icon"></i>
+                            <div class="empty-state-title">সব পণ্য স্টকে আছে!</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

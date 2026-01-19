@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইনভয়েস {{ sale.invoice_number }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 12px;
+            color: #333;
+            background: white;
+        }
+
+        .invoice {
+            max-width: 80mm;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .shop-info {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .items {
+            margin: 10px 0;
+            border-top: 1px dashed #333;
+            border-bottom: 1px dashed #333;
+            padding: 10px 0;
+        }
+
+        .item {
+            margin-bottom: 5px;
+        }
+
+        .item-name {
+            font-weight: 500;
+        }
+
+        .item-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .totals {
+            margin-top: 10px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .grand-total {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 1px solid #333;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #333;
+            font-size: 10px;
+            color: #666;
+        }
+
+        @media print {
+            body {
+                width: 80mm;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice">
+        <div class="header">
+            <div class="shop-name">📄 স্টেশনারি শপ</div>
+            <div class="shop-info">
+                আপনার ঠিকানা এখানে<br>
+                ফোন: 01XXXXXXXXX
+            </div>
+        </div>
+
+        <div class="info-row">
+            <span>ইনভয়েস:</span>
+            <strong>{{ sale.invoice_number }}</strong>
+        </div>
+        <div class="info-row">
+            <span>তারিখ:</span>
+            <span>{{ sale.sale_date|date:"d/m/Y h:i A" }}</span>
+        </div>
+        {% if sale.customer %}
+        <div class="info-row">
+            <span>গ্রাহক:</span>
+            <span>{{ sale.customer.name }}</span>
+        </div>
+        {% endif %}
+
+        <div class="items">
+            {% for item in items %}
+            <div class="item">
+                <div class="item-name">{{ item.product.name }}</div>
+                <div class="item-details">
+                    <span>{{ item.quantity }} × ৳{{ item.unit_price|floatformat:0 }}</span>
+                    <span>৳{{ item.total|floatformat:0 }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="totals">
+            <div class="total-row">
+                <span>উপমোট:</span>
+                <span>৳{{ sale.subtotal|floatformat:0 }}</span>
+            </div>
+            {% if sale.discount_amount > 0 %}
+            <div class="total-row">
+                <span>ছাড়:</span>
+                <span>- ৳{{ sale.discount_amount|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+            <div class="total-row grand-total">
+                <span>সর্বমোট:</span>
+                <span>৳{{ sale.grand_total|floatformat:0 }}</span>
+            </div>
+            <div class="total-row">
+                <span>প্রদত্ত:</span>
+                <span>৳{{ sale.paid_amount|floatformat:0 }}</span>
+            </div>
+            {% if sale.due_amount > 0 %}
+            <div class="total-row" style="color: red;">
+                <span>বাকি:</span>
+                <span>৳{{ sale.due_amount|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+            {% if sale.change_amount > 0 %}
+            <div class="total-row">
+                <span>ফেরত:</span>
+                <span>৳{{ sale.change_amount|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            ধন্যবাদ! আবার আসবেন।<br>
+            বিক্রেতা: {{ sale.created_by.get_full_name|default:sale.created_by.username }}
+        </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer;">
+            🖨️ প্রিন্ট করুন
+        </button>
+    </div>
+</body>
+
+</html>

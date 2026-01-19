@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}ক্যাশ ফ্লো - স্টেশনারি শপ{% endblock %}
+{% block header_title %}আজকের ক্যাশ ফ্লো{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title"><i class="fas fa-money-bill-wave"></i> আজকের ক্যাশ ফ্লো</h2>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+        <div class="stat-value">৳{{ opening_balance|floatformat:0 }}</div>
+        <div class="stat-label">প্রারম্ভিক ব্যালেন্স</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+        <div class="stat-value">৳{{ cash_in|floatformat:0 }}</div>
+        <div class="stat-label">ক্যাশ ইন</div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-value">৳{{ cash_out|floatformat:0 }}</div>
+        <div class="stat-label">ক্যাশ আউট</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-cash-register"></i></div>
+        <div class="stat-value">৳{{ closing_balance|floatformat:0 }}</div>
+        <div class="stat-label">সমাপনী ব্যালেন্স</div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">আজকের লেনদেন</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>সময়</th>
+                    <th>ধরণ</th>
+                    <th>বিবরণ</th>
+                    <th>টাকা</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if transactions %}
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.created_at|time:"h:i A" }}</td>
+                    <td>
+                        <span
+                            class="badge badge-{% if t.transaction_type == 'income' %}success{% else %}danger{% endif %}">
+                            {{ t.get_transaction_type_display }}
+                        </span>
+                    </td>
+                    <td>{{ t.description }}</td>
+                    <td class="{% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                        {% if t.transaction_type == 'income' %}+{% else %}-{% endif %}৳{{ t.amount|floatformat:0 }}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">আজ কোনো লেনদেন নেই</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

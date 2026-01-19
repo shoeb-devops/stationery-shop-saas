@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}ড্যাশবোর্ড - স্টেশনারি শপ{% endblock %}
+{% block header_title %}ড্যাশবোর্ড{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stat-grid">
+    <div class="stat-card success">
+        <div class="stat-icon">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="stat-value">৳{{ today_total|floatformat:0 }}</div>
+        <div class="stat-label">আজকের বিক্রি</div>
+        <div class="stat-change up">
+            <i class="fas fa-receipt"></i> {{ today_count }} টি অর্ডার
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-value">৳{{ monthly_total|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক বিক্রি</div>
+    </div>
+
+    <div class="stat-card {% if monthly_profit >= 0 %}success{% else %}danger{% endif %}">
+        <div class="stat-icon">
+            <i class="fas fa-{% if monthly_profit >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+        </div>
+        <div class="stat-value">৳{{ monthly_profit|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক লাভ</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon">
+            <i class="fas fa-boxes"></i>
+        </div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-label">মোট পণ্য</div>
+    </div>
+</div>
+
+<!-- Second Row Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="stat-value">৳{{ total_stock_value|floatformat:0 }}</div>
+        <div class="stat-label">স্টক মূল্য</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon">
+            <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div class="stat-value">৳{{ customer_due|floatformat:0 }}</div>
+        <div class="stat-label">গ্রাহক বাকি</div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-icon">
+            <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <div class="stat-value">৳{{ supplier_due|floatformat:0 }}</div>
+        <div class="stat-label">সাপ্লায়ার বাকি</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div class="stat-value">{{ unread_alerts }}</div>
+        <div class="stat-label">অ্যালার্ট</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+    <!-- Low Stock Alerts -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+                লো স্টক পণ্য
+            </h3>
+            <a href="{% url 'inventory:low_stock' %}" class="btn btn-sm btn-outline">সব দেখুন</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if low_stock_items %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>পণ্য</th>
+                        <th>স্টক</th>
+                        <th>লেভেল</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in low_stock_items %}
+                    <tr>
+                        <td>{{ stock.product.name|truncatechars:30 }}</td>
+                        <td><span class="badge badge-danger">{{ stock.quantity }}</span></td>
+                        <td>{{ stock.reorder_level }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle text-success empty-state-icon"></i>
+                <div class="empty-state-title">সব পণ্য স্টকে আছে!</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Sales -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-clock"></i>
+                সাম্প্রতিক বিক্রি
+            </h3>
+            <a href="{% url 'sales:sale_list' %}" class="btn btn-sm btn-outline">সব দেখুন</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if recent_sales %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ইনভয়েস</th>
+                        <th>গ্রাহক</th>
+                        <th>মোট</th>
+                        <th>স্ট্যাটাস</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'sales:sale_detail' sale.pk %}">{{ sale.invoice_number }}</a>
+                        </td>
+                        <td>{{ sale.customer.name|default:"ওয়াক-ইন" }}</td>
+                        <td>৳{{ sale.grand_total|floatformat:0 }}</td>
+                        <td>
+                            <span
+                                class="badge badge-{% if sale.payment_status == 'paid' %}success{% elif sale.payment_status == 'partial' %}warning{% else %}danger{% endif %}">
+                                {{ sale.get_payment_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart empty-state-icon"></i>
+                <div class="empty-state-title">এখনো কোনো বিক্রি হয়নি</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-bolt"></i> দ্রুত কাজ</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'sales:pos' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-cash-register"></i> নতুন বিক্রি (POS)
+            </a>
+            <a href="{% url 'products:product_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> নতুন পণ্য যোগ
+            </a>
+            <a href="{% url 'purchases:purchase_add' %}" class="btn btn-outline">
+                <i class="fas fa-truck"></i> নতুন ক্রয়
+            </a>
+            <a href="{% url 'sales:customer_add' %}" class="btn btn-outline">
+                <i class="fas fa-user-plus"></i> নতুন গ্রাহক
+            </a>
+            <a href="{% url 'accounting:expense_add' %}" class="btn btn-outline">
+                <i class="fas fa-receipt"></i> খরচ যোগ
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

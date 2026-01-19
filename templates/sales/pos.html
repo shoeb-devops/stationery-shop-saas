@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+
+{% block title %}POS - স্টেশনারি শপ{% endblock %}
+{% block header_title %}পয়েন্ট অফ সেল (POS){% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        padding: 1rem;
+        height: calc(100vh - 80px);
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pos-container">
+    <!-- Products Section -->
+    <div class="pos-products">
+        <div class="card" style="height: 100%;">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-boxes"></i> পণ্য নির্বাচন</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="productSearch" class="form-control" placeholder="পণ্য সার্চ করুন..."
+                        style="width: 250px;">
+                </div>
+            </div>
+            <div class="card-body" style="overflow-y: auto; height: calc(100% - 70px);">
+                <div class="product-grid" id="productGrid">
+                    {% for product in products %}
+                    <div class="product-card"
+                        onclick="addToCart({{ product.pk }}, '{{ product.name|escapejs }}', {{ product.selling_price }}, {{ product.stock.quantity|default:0 }}, '{{ product.unit.short_name|default:"
+                        পিস" }}')">
+                        <div class="product-card-name">{{ product.name|truncatechars:25 }}</div>
+                        <div class="product-card-price">৳{{ product.selling_price|floatformat:0 }}</div>
+                        <div class="product-card-stock">
+                            স্টক: {{ product.stock.quantity|default:0 }} {{ product.unit.short_name|default:"পিস" }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-box-open empty-state-icon"></i>
+                        <div class="empty-state-title">কোনো পণ্য নেই</div>
+                        <a href="{% url 'products:product_add' %}" class="btn btn-primary mt-2">পণ্য যোগ করুন</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="pos-cart" id="posCart">
+        <div class="cart-header">
+            <h3 class="card-title"><i class="fas fa-shopping-cart"></i> কার্ট</h3>
+            <button class="btn btn-sm btn-outline" onclick="clearCart()">
+                <i class="fas fa-trash"></i> খালি করুন
+            </button>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+            <div class="empty-state" id="emptyCart">
+                <i class="fas fa-shopping-basket empty-state-icon"></i>
+                <div class="empty-state-title">কার্ট খালি</div>
+                <p class="text-muted">পণ্যে ক্লিক করে কার্টে যোগ করুন</p>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label class="form-label" style="font-size: 0.85rem;">গ্রাহক (ঐচ্ছিক)</label>
+                <select id="customerId" class="form-control" style="padding: 0.5rem;">
+                    <option value="">ওয়াক-ইন গ্রাহক</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.pk }}">{{ customer.name }} - {{ customer.phone }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cart-summary-row">
+                <span>উপমোট:</span>
+                <span id="subtotal">৳0</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>ছাড়:</span>
+                <input type="number" id="discount" value="0" min="0" class="form-control"
+                    style="width: 100px; padding: 0.25rem 0.5rem; text-align: right;" onchange="updateTotals()">
+            </div>
+            <div class="cart-summary-row total">
+                <span>সর্বমোট:</span>
+                <span id="grandTotal">৳0</span>
+            </div>
+        </div>
+
+        <div class="cart-actions">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <div class="form-row">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.8rem;">প্রাপ্ত টাকা</label>
+                        <input type="number" id="paidAmount" class="form-control" placeholder="0"
+                            oninput="calculateChange()">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.8rem;">ফেরত</label>
+                        <input type="text" id="changeAmount" class="form-control" value="৳0" readonly
+                            style="background: var(--dark-300);">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label style="font-size: 0.8rem;">পেমেন্ট মাধ্যম</label>
+                <select id="paymentMethod" class="form-control">
+                    <option value="cash">নগদ</option>
+                    <option value="mobile">মোবাইল ব্যাংকিং</option>
+                    <option value="card">কার্ড</option>
+                    <option value="credit">বাকি</option>
+                </select>
+            </div>
+            <button class="btn btn-success" onclick="completeSale()" id="completeBtn" disabled>
+                <i class="fas fa-check-circle"></i> বিক্রি সম্পন্ন করুন
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-backdrop" id="successModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-check-circle text-success"></i> বিক্রি সম্পন্ন!</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <div style="font-size: 4rem; color: var(--success); margin-bottom: 1rem;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">ইনভয়েস নম্বর:</p>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);" id="invoiceNumber"></p>
+            <p style="font-size: 1.1rem;">মোট: <span id="saleTotal"
+                    style="font-weight: 700; color: var(--success);"></span></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">বন্ধ করুন</button>
+            <a href="#" id="printInvoiceBtn" class="btn btn-primary" target="_blank">
+                <i class="fas fa-print"></i> প্রিন্ট
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let cart = [];
+
+    // Search products
+    document.getElementById('productSearch').addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.product-card').forEach(card => {
+            const name = card.querySelector('.product-card-name').textContent.toLowerCase();
+            card.style.display = name.includes(query) ? 'block' : 'none';
+        });
+    });
+
+    // Add to cart
+    function addToCart(id, name, price, stock, unit) {
+        const existing = cart.find(item => item.id === id);
+
+        if (existing) {
+            if (existing.quantity < stock) {
+                existing.quantity++;
+            } else {
+                alert('স্টক শেষ!');
+                return;
+            }
+        } else {
+            if (stock <= 0) {
+                alert('স্টক নেই!');
+                return;
+            }
+            cart.push({ id, name, price, quantity: 1, stock, unit });
+        }
+
+        renderCart();
+    }
+
+    // Render cart
+    function renderCart() {
+        const container = document.getElementById('cartItems');
+        const emptyState = document.getElementById('emptyCart');
+
+        if (cart.length === 0) {
+            container.innerHTML = '';
+            container.appendChild(emptyState);
+            emptyState.style.display = 'block';
+            document.getElementById('completeBtn').disabled = true;
+            updateTotals();
+            return;
+        }
+
+        emptyState.style.display = 'none';
+        document.getElementById('completeBtn').disabled = false;
+
+        container.innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-price">৳${item.price} × ${item.quantity} ${item.unit}</div>
+                </div>
+                <div class="cart-item-qty">
+                    <button onclick="updateQty(${index}, -1)">−</button>
+                    <input type="number" value="${item.quantity}" min="1" max="${item.stock}" 
+                           onchange="setQty(${index}, this.value)">
+                    <button onclick="updateQty(${index}, 1)">+</button>
+                </div>
+                <div class="cart-item-total">৳${(item.price * item.quantity).toFixed(0)}</div>
+                <span class="cart-item-remove" onclick="removeItem(${index})">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+        `).join('');
+
+        updateTotals();
+    }
+
+    // Update quantity
+    function updateQty(index, delta) {
+        const item = cart[index];
+        const newQty = item.quantity + delta;
+
+        if (newQty > 0 && newQty <= item.stock) {
+            item.quantity = newQty;
+            renderCart();
+        } else if (newQty <= 0) {
+            removeItem(index);
+        } else {
+            alert('স্টক সীমা অতিক্রম!');
+        }
+    }
+
+    // Set quantity
+    function setQty(index, value) {
+        const item = cart[index];
+        const newQty = parseInt(value);
+
+        if (newQty > 0 && newQty <= item.stock) {
+            item.quantity = newQty;
+            renderCart();
+        }
+    }
+
+    // Remove item
+    function removeItem(index) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+
+    // Clear cart
+    function clearCart() {
+        if (cart.length > 0 && confirm('কার্ট খালি করবেন?')) {
+            cart = [];
+            renderCart();
+        }
+    }
+
+    // Update totals
+    function updateTotals() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const grandTotal = subtotal - discount;
+
+        document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(0);
+        document.getElementById('grandTotal').textContent = '৳' + grandTotal.toFixed(0);
+
+        calculateChange();
+    }
+
+    // Calculate change
+    function calculateChange() {
+        const grandTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('৳', '')) || 0;
+        const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+        const change = paid - grandTotal;
+
+        document.getElementById('changeAmount').value = change > 0 ? '৳' + change.toFixed(0) : '৳0';
+    }
+
+    // Complete sale
+    function completeSale() {
+        if (cart.length === 0) return;
+
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const grandTotal = subtotal - discount;
+        const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+
+        const data = {
+            customer_id: document.getElementById('customerId').value || null,
+            items: cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity,
+                price: item.price
+            })),
+            discount: discount,
+            paid_amount: paidAmount,
+            payment_method: document.getElementById('paymentMethod').value
+        };
+
+        document.getElementById('completeBtn').disabled = true;
+        document.getElementById('completeBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রক্রিয়াকরণ...';
+
+        fetch('{% url "sales:create_sale_api" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Show success modal
+                    document.getElementById('invoiceNumber').textContent = result.invoice_number;
+                    document.getElementById('saleTotal').textContent = '৳' + result.grand_total.toFixed(0);
+                    document.getElementById('printInvoiceBtn').href = '/sales/' + result.sale_id + '/invoice/';
+                    document.getElementById('successModal').classList.add('active');
+
+                    // Clear cart
+                    cart = [];
+                    renderCart();
+                    document.getElementById('discount').value = 0;
+                    document.getElementById('paidAmount').value = '';
+                    document.getElementById('customerId').value = '';
+                } else {
+                    alert('ত্রুটি: ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('ত্রুটি হয়েছে!');
+                console.error(error);
+            })
+            .finally(() => {
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('completeBtn').innerHTML = '<i class="fas fa-check-circle"></i> বিক্রি সম্পন্ন করুন';
+            });
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('successModal').classList.remove('active');
+    }
+
+    // Initialize
+    renderCart();
+</script>
+{% endblock %}

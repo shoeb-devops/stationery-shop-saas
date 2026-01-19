@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}পণ্য তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}পণ্য তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">পণ্য তালিকা</h2>
+    </div>
+    <a href="{% url 'products:product_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> নতুন পণ্য
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+            <div class="form-group" style="margin: 0; flex: 1; min-width: 200px;">
+                <label class="form-label">সার্চ</label>
+                <input type="text" name="search" class="form-control" placeholder="নাম, SKU..." value="{{ search }}">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">ক্যাটাগরি</label>
+                <select name="category" class="form-control">
+                    <option value="">সব ক্যাটাগরি</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.pk }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> সার্চ
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>পণ্যের নাম</th>
+                        <th>ক্যাটাগরি</th>
+                        <th>ক্রয় মূল্য</th>
+                        <th>বিক্রয় মূল্য</th>
+                        <th>স্টক</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if products %}
+                    {% for product in products %}
+                    <tr>
+                        <td><code>{{ product.sku }}</code></td>
+                        <td><strong>{{ product.name }}</strong></td>
+                        <td>{{ product.category.name|default:"-" }}</td>
+                        <td>৳{{ product.buying_price|floatformat:0 }}</td>
+                        <td>৳{{ product.selling_price|floatformat:0 }}</td>
+                        <td>
+                            {% if product.stock %}
+                            <span
+                                class="badge badge-{% if product.stock.is_low_stock %}danger{% else %}success{% endif %}">{{
+                                product.stock.quantity }}</span>
+                            {% else %}
+                            <span class="badge badge-warning">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'products:product_edit' product.pk %}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-box-open empty-state-icon"></i>
+                                <div class="empty-state-title">কোনো পণ্য নেই</div>
+                                <a href="{% url 'products:product_add' %}" class="btn btn-primary mt-2">প্রথম পণ্য যোগ
+                                    করুন</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

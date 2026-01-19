@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}বিক্রয় তালিকা - স্টেশনারি শপ{% endblock %}
+{% block header_title %}বিক্রয় তালিকা{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">বিক্রয় তালিকা</h2>
+    <a href="{% url 'sales:pos' %}" class="btn btn-success">
+        <i class="fas fa-cash-register"></i> নতুন বিক্রি (POS)
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ইনভয়েস</th>
+                        <th>তারিখ</th>
+                        <th>গ্রাহক</th>
+                        <th>মোট</th>
+                        <th>প্রদত্ত</th>
+                        <th>বাকি</th>
+                        <th>স্ট্যাটাস</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td><a href="{% url 'sales:sale_detail' sale.pk %}"><strong>{{ sale.invoice_number
+                                    }}</strong></a></td>
+                        <td>{{ sale.sale_date|date:"d M Y, h:i A" }}</td>
+                        <td>{{ sale.customer.name|default:"ওয়াক-ইন" }}</td>
+                        <td>৳{{ sale.grand_total|floatformat:0 }}</td>
+                        <td>৳{{ sale.paid_amount|floatformat:0 }}</td>
+                        <td>
+                            {% if sale.due_amount > 0 %}
+                            <span class="text-danger">৳{{ sale.due_amount|floatformat:0 }}</span>
+                            {% else %}
+                            ৳0
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span
+                                class="badge badge-{% if sale.payment_status == 'paid' %}success{% elif sale.payment_status == 'partial' %}warning{% else %}danger{% endif %}">
+                                {{ sale.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'sales:sale_detail' sale.pk %}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'sales:sale_invoice' sale.pk %}" class="btn btn-sm btn-outline"
+                                target="_blank">
+                                <i class="fas fa-print"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-shopping-cart empty-state-icon"></i>
+                                <div class="empty-state-title">এখনো কোনো বিক্রি হয়নি</div>
+                                <a href="{% url 'sales:pos' %}" class="btn btn-success mt-2">প্রথম বিক্রি করুন</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

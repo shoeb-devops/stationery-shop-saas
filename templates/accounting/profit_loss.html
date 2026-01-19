@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}লাভ-ক্ষতি রিপোর্ট - স্টেশনারি শপ{% endblock %}
+{% block header_title %}লাভ-ক্ষতি রিপোর্ট{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">লাভ-ক্ষতি রিপোর্ট</h2>
+</div>
+
+<!-- Date Filter -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">শুরু</label>
+                <input type="date" name="from_date" class="form-control" value="{{ from_date }}">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">শেষ</label>
+                <input type="date" name="to_date" class="form-control" value="{{ to_date }}">
+            </div>
+            <button type="submit" class="btn btn-primary">রিপোর্ট দেখুন</button>
+        </form>
+    </div>
+</div>
+
+<!-- P&L Statement -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ from_date }} থেকে {{ to_date }} পর্যন্ত</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tbody>
+                <tr style="background: rgba(16, 185, 129, 0.1);">
+                    <td><strong><i class="fas fa-arrow-up text-success"></i> মোট বিক্রি</strong></td>
+                    <td class="text-right"><strong>৳{{ total_sales|floatformat:0 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>(-) বিক্রিত পণ্যের খরচ (COGS)</td>
+                    <td class="text-right text-danger">- ৳{{ cogs|floatformat:0 }}</td>
+                </tr>
+                <tr style="background: var(--dark-200);">
+                    <td><strong>স্থূল লাভ (Gross Profit)</strong></td>
+                    <td class="text-right"><strong
+                            class="{% if gross_profit >= 0 %}text-success{% else %}text-danger{% endif %}">৳{{
+                            gross_profit|floatformat:0 }}</strong></td>
+                </tr>
+                <tr>
+                    <td>(-) পরিচালনা খরচ</td>
+                    <td class="text-right text-danger">- ৳{{ total_expenses|floatformat:0 }}</td>
+                </tr>
+                <tr
+                    style="background: {% if net_profit >= 0 %}rgba(16, 185, 129, 0.2){% else %}rgba(239, 68, 68, 0.2){% endif %}; font-size: 1.25rem;">
+                    <td><strong>নিট লাভ (Net Profit)</strong></td>
+                    <td class="text-right">
+                        <strong class="{% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ৳{{ net_profit|floatformat:0 }}
+                        </strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if expenses_by_category %}
+<div class="card mt-3">
+    <div class="card-header">
+        <h3 class="card-title">খরচের বিভাজন</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ক্যাটাগরি</th>
+                    <th class="text-right">টাকা</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in expenses_by_category %}
+                <tr>
+                    <td>{{ item.category }}</td>
+                    <td class="text-right">৳{{ item.total|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

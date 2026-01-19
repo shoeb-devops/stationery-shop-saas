@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}অ্যাকাউন্টিং - স্টেশনারি শপ{% endblock %}
+{% block header_title %}অ্যাকাউন্টিং ড্যাশবোর্ড{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+    <div class="stat-card success">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-value">৳{{ monthly_sales|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক বিক্রি</div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+        <div class="stat-value">৳{{ monthly_purchases|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক ক্রয়</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-value">৳{{ monthly_expenses|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক খরচ</div>
+    </div>
+
+    <div class="stat-card {% if monthly_profit >= 0 %}success{% else %}danger{% endif %}">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-value">৳{{ monthly_profit|floatformat:0 }}</div>
+        <div class="stat-label">মাসিক লাভ</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-hand-holding-usd text-success"></i> পাওনা (Receivables)</h3>
+        </div>
+        <div class="card-body">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--success);">
+                ৳{{ receivables|floatformat:0 }}
+            </div>
+            <p class="text-muted mt-2">গ্রাহকদের কাছ থেকে পাওনা</p>
+            <a href="{% url 'sales:due_report' %}" class="btn btn-outline mt-2">বিস্তারিত দেখুন</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-file-invoice-dollar text-danger"></i> দেনা (Payables)</h3>
+        </div>
+        <div class="card-body">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--danger);">
+                ৳{{ payables|floatformat:0 }}
+            </div>
+            <p class="text-muted mt-2">সাপ্লায়ারদের কাছে দেনা</p>
+            <a href="{% url 'purchases:supplier_due_report' %}" class="btn btn-outline mt-2">বিস্তারিত দেখুন</a>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-bolt"></i> দ্রুত কাজ</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'accounting:expense_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> খরচ যোগ
+            </a>
+            <a href="{% url 'accounting:profit_loss_report' %}" class="btn btn-outline">
+                <i class="fas fa-chart-bar"></i> লাভ-ক্ষতি রিপোর্ট
+            </a>
+            <a href="{% url 'accounting:today_cashflow' %}" class="btn btn-outline">
+                <i class="fas fa-money-bill-wave"></i> আজকের ক্যাশ ফ্লো
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

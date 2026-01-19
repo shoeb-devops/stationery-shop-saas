@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}বিক্রয় বিস্তারিত - স্টেশনারি শপ{% endblock %}
+{% block header_title %}বিক্রয় বিস্তারিত{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">ইনভয়েস: {{ sale.invoice_number }}</h2>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="{% url 'sales:sale_invoice' sale.pk %}" class="btn btn-primary" target="_blank">
+            <i class="fas fa-print"></i> প্রিন্ট
+        </a>
+        <a href="{% url 'sales:sale_list' %}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> ফিরে যান
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Sale Details -->
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-list"></i> আইটেম সমূহ</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>পণ্য</th>
+                            <th>পরিমাণ</th>
+                            <th>একক মূল্য</th>
+                            <th>মোট</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>৳{{ item.unit_price|floatformat:0 }}</td>
+                            <td>৳{{ item.total|floatformat:0 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>উপমোট:</strong></td>
+                            <td>৳{{ sale.subtotal|floatformat:0 }}</td>
+                        </tr>
+                        {% if sale.discount_amount > 0 %}
+                        <tr>
+                            <td colspan="3" class="text-right">ছাড়:</td>
+                            <td>- ৳{{ sale.discount_amount|floatformat:0 }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr style="font-size: 1.25rem;">
+                            <td colspan="3" class="text-right"><strong>সর্বমোট:</strong></td>
+                            <td><strong class="text-success">৳{{ sale.grand_total|floatformat:0 }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-info-circle"></i> তথ্য</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>তারিখ:</strong> {{ sale.sale_date|date:"d M Y, h:i A" }}</p>
+                <p><strong>গ্রাহক:</strong> {{ sale.customer.name|default:"ওয়াক-ইন" }}</p>
+                <p><strong>বিক্রেতা:</strong> {{ sale.created_by.get_full_name|default:sale.created_by.username }}</p>
+                <p>
+                    <strong>স্ট্যাটাস:</strong>
+                    <span
+                        class="badge badge-{% if sale.payment_status == 'paid' %}success{% elif sale.payment_status == 'partial' %}warning{% else %}danger{% endif %}">
+                        {{ sale.get_payment_status_display }}
+                    </span>
+                </p>
+                <hr>
+                <p><strong>প্রদত্ত:</strong> ৳{{ sale.paid_amount|floatformat:0 }}</p>
+                <p><strong>বাকি:</strong> <span class="{% if sale.due_amount > 0 %}text-danger{% endif %}">৳{{
+                        sale.due_amount|floatformat:0 }}</span></p>
+
+                {% if sale.due_amount > 0 %}
+                <hr>
+                <form method="post" action="{% url 'sales:add_payment' sale.pk %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label">পেমেন্ট নিন</label>
+                        <input type="number" name="amount" class="form-control" placeholder="টাকার পরিমাণ"
+                            max="{{ sale.due_amount }}" required>
+                    </div>
+                    <div class="form-group">
+                        <select name="payment_method" class="form-control">
+                            <option value="cash">নগদ</option>
+                            <option value="mobile">মোবাইল</option>
+                            <option value="card">কার্ড</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-plus"></i> পেমেন্ট যোগ
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

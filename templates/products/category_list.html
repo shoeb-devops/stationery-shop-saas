@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}ক্যাটাগরি - স্টেশনারি শপ{% endblock %}
+{% block header_title %}ক্যাটাগরি{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">ক্যাটাগরি তালিকা</h2>
+    <a href="{% url 'products:category_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> নতুন ক্যাটাগরি
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ক্যাটাগরির নাম</th>
+                    <th>বিবরণ</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>পণ্য সংখ্যা</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ category.name }}</strong></td>
+                    <td>{{ category.description|default:"-" }}</td>
+                    <td>
+                        {% if category.is_active %}
+                        <span class="badge badge-success">সক্রিয়</span>
+                        {% else %}
+                        <span class="badge badge-danger">নিষ্ক্রিয়</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ category.products.count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-tags empty-state-icon"></i>
+                            <div class="empty-state-title">কোনো ক্যাটাগরি নেই</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

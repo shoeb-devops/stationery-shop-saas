@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}প্রোফাইল - স্টেশনারি শপ{% endblock %}
+{% block header_title %}প্রোফাইল{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-user"></i> আমার প্রোফাইল</h3>
+    </div>
+    <div class="card-body">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div
+                style="width: 100px; height: 100px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem;">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <h3>{{ user.get_full_name|default:user.username }}</h3>
+            <span class="badge badge-info">{{ user.get_role_display }}</span>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">নাম</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">পদবী</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ইমেইল</label>
+                <input type="email" name="email" class="form-control" value="{{ user.email }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ফোন</label>
+                <input type="tel" name="phone" class="form-control" value="{{ user.phone|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ঠিকানা</label>
+                <textarea name="address" class="form-control" rows="2">{{ user.address|default:'' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> আপডেট করুন
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

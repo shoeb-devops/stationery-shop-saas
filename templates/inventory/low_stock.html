@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}লো স্টক - স্টেশনারি শপ{% endblock %}
+{% block header_title %}লো স্টক পণ্য{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title"><i class="fas fa-exclamation-triangle text-warning"></i> লো স্টক পণ্য</h2>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>পণ্য</th>
+                    <th>ক্যাটাগরি</th>
+                    <th>বর্তমান স্টক</th>
+                    <th>রিঅর্ডার লেভেল</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td><strong>{{ stock.product.name }}</strong></td>
+                    <td>{{ stock.product.category.name|default:"-" }}</td>
+                    <td><span class="badge badge-danger">{{ stock.quantity }}</span></td>
+                    <td>{{ stock.reorder_level }}</td>
+                    <td>
+                        <a href="{% url 'inventory:stock_adjust' stock.pk %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> স্টক যোগ
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle text-success empty-state-icon"></i>
+                            <div class="empty-state-title">সব পণ্য স্টকে আছে!</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
