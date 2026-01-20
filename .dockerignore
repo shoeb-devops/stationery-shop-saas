@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info
+.eggs
+
+# Virtual environments
+venv
+.venv
+env
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker
+Dockerfile*
+docker-compose*
+.docker
+
+# Database
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+
+# Static files (will be collected)
+staticfiles
+
+# Media uploads
+media
+
+# Documentation
+*.md
+!README.md
+docs
+
+# Tests
+.coverage
+htmlcov
+.pytest_cache
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+
+# Gemini
+.gemini
